@@ -1,12 +1,17 @@
 import pygame as pg
 from settings import *
+from player import Player
 
 pg.init()
 
 clock = pg.time.Clock()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption('RPG GAME')
-#pg.display.set_icon(pg.image.load())
+pg.display.set_icon(pg.image.load('png/icon.png'))
+
+player = Player('png/player_sheet.png', (100, 100))
+all_sprites = pg.sprite.Group()
+all_sprites.add(player)
 
 run = True
 while run:
@@ -15,6 +20,7 @@ while run:
             run = False
     
     screen.fill((255, 255, 255))
+    all_sprites.draw(screen)
     
     clock.tick(60)
     pg.display.flip()
