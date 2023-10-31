@@ -1,12 +1,14 @@
 import pygame as pg
 from helper import SpriteSheet
 from pygame.math import Vector2
+from settings import *
 
 
 class Player(pg.sprite.Sprite):
     """Класс для хранения атрибутов связанных с игроком."""
     speed = 5
-    def __init__(self, sheet_path, pos):
+    def __init__(self, game, sheet_path, pos):
+        self._layer = PL_LAYER
         super().__init__()
         self.sheet = SpriteSheet(sheet_path, 2)
         self.load_image()
@@ -15,6 +17,10 @@ class Player(pg.sprite.Sprite):
         self.frame = 0
         self.velocity = Vector2(0, 0) #движение по векторам
         self.anim_update = 0
+        self.game = game
+        self.hitbox = pg.Rect(self.rect.x, self.rect.y, self.rect.w*0.5, self.rect.h*0.25)
+        self.hitbox.centerx = self.rect.centerx
+        self.hitbox.centery = self.rect.centery
 
     def update(self):
         self.move()
@@ -37,7 +43,9 @@ class Player(pg.sprite.Sprite):
             self.velocity.y = 0
 
         self.velocity *= Player.speed
-        self.rect.center += self.velocity
+        if not self.collide_():
+            self.rect.center += self.velocity
+            self.hitbox.center += self.velocity
 
     def load_image(self):
         """Подгружает обрезанные по сторонам векторов картинки игрока."""
@@ -71,3 +79,12 @@ class Player(pg.sprite.Sprite):
             
             self.frame = (self.frame + 1) % 4
             self.image = self.anim_list[self.frame]
+
+    def collide_(self):
+        target_rect = self.hitbox.move(self.velocity)
+        for tile in self.game.walls:
+            if target_rect.colliderect(tile.rect):
+                return True
+        return False
+    
+    
